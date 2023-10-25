@@ -342,6 +342,11 @@ func (ec *Client) GetBlockTraceByNumber(ctx context.Context, number *big.Int) (*
 	return blockTrace, ec.c.CallContext(ctx, &blockTrace, "scroll_getBlockTraceByNumberOrHash", toBlockNumArg(number))
 }
 
+func (ec *Client) GetL1BlockRangeHash(ctx context.Context, from *big.Int, to *big.Int) (*common.Hash, error) {
+	l1BlockRangeHash := &common.Hash{}
+	return l1BlockRangeHash, ec.c.CallContext(ctx, &l1BlockRangeHash, "scroll_getL1BlockRangeHash", hexutil.EncodeBig(from), hexutil.EncodeBig(to))
+}
+
 type rpcRowConsumption struct {
 	RowConsumption types.RowConsumption `json:"rowConsumption"`
 }

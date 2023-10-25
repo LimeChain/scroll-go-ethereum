@@ -166,9 +166,10 @@ type Block struct {
 	transactions Transactions
 
 	// caches
-	hash       atomic.Value
-	size       atomic.Value
-	l1MsgCount atomic.Value
+	hash               atomic.Value
+	size               atomic.Value
+	l1MsgCount         atomic.Value
+	lastAppliedL1Block atomic.Value
 
 	// Td is used by package core to store the total difficulty
 	// of the chain up to and including the block.
@@ -407,6 +408,23 @@ func (b *Block) ContainsL1Messages() bool {
 		}
 	}
 	return false
+}
+
+// ContainsL1BlockHashes returns true if this block contains at least one L1 block hashes tx.
+func (b *Block) ContainsL1BlockHashes() bool {
+	for _, tx := range b.transactions {
+		if tx.IsL1BlockHashesTx() {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *Block) LastAppliedL1Block() uint64 {
+	if lastAppliedL1Block := b.lastAppliedL1Block.Load(); lastAppliedL1Block != nil {
+		return lastAppliedL1Block.(uint64)
+	}
+	return 0
 }
 
 // NumL1MessagesProcessed returns the number of L1 messages processed in this block.

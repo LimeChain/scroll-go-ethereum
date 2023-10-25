@@ -205,6 +205,9 @@ func (env *TraceEnv) GetBlockTrace(block *types.Block) (*types.BlockTrace, error
 		if env.commitAfterApply {
 			env.state.Finalise(vmenv.ChainConfig().IsEIP158(block.Number()))
 		}
+
+		// TODO: if there is L1BlockHashesTx in the block, we should also
+		// add the L1BlockHashes to the block trace
 	}
 	close(jobs)
 	pend.Wait()
@@ -512,12 +515,13 @@ func (env *TraceEnv) fillBlockTrace(block *types.Block) (*types.BlockTrace, erro
 			PoseidonCodeHash: statedb.GetPoseidonCodeHash(env.coinbase),
 			CodeSize:         statedb.GetCodeSize(env.coinbase),
 		},
-		Header:            block.Header(),
-		StorageTrace:      env.StorageTrace,
-		ExecutionResults:  env.ExecutionResults,
-		TxStorageTraces:   env.TxStorageTraces,
-		Transactions:      txs,
-		StartL1QueueIndex: env.StartL1QueueIndex,
+		Header:             block.Header(),
+		StorageTrace:       env.StorageTrace,
+		ExecutionResults:   env.ExecutionResults,
+		TxStorageTraces:    env.TxStorageTraces,
+		Transactions:       txs,
+		StartL1QueueIndex:  env.StartL1QueueIndex,
+		LastAppliedL1Block: block.LastAppliedL1Block(),
 	}
 
 	for i, tx := range block.Transactions() {
